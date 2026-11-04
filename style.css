@@ -1,0 +1,78 @@
+*{box-sizing:border-box}
+html{color-scheme:light dark;background:light-dark(#eae7df,#17201b)}
+body{margin:0;padding:12px;font:16px/1.6 system-ui,-apple-system,"PingFang SC",sans-serif}
+button{font:inherit;cursor:pointer;border:1px solid var(--rule);border-radius:7px;background:var(--panel);color:var(--ink);padding:6px 12px}
+button:hover{background:var(--wash)}
+button[aria-pressed=true]{border-color:var(--accent);background:var(--wash);color:var(--accent)}
+button:disabled{cursor:default;opacity:.4}
+button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+h1,h2,h3,p{margin:0}
+#rover-wiring-atlas{--paper:light-dark(#f5f0e5,#202724);--panel:light-dark(#fcfaf4,#28312b);--ink:light-dark(#243743,#e5ece4);--muted:light-dark(#6c786f,#b0bdb2);--rule:light-dark(#d9d0bc,#4d594f);--grid:light-dark(#e7dfce,#303c33);--accent:light-dark(#167e78,#85d1b2);--wash:light-dark(#e5eee5,#344d40);--metal:light-dark(#d8ddda,#bac7bf);--metal-side:light-dark(#929e9d,#798e83);--metal-dark:light-dark(#657774,#597267);--metal-light:light-dark(#edf0e7,#dae5da);--pcb:light-dark(#228d84,#379f8b);--pcb-side:light-dark(#17675f,#237762);--pi:light-dark(#55895c,#6f9b69);--pi-side:light-dark(#315f45,#44784e);--redpcb:light-dark(#a54e48,#bc6961);--redpcb-side:light-dark(#753c3b,#874940);--black:light-dark(#283742,#35463e);--black-side:light-dark(#1c2931,#24352c);--black-light:light-dark(#445862,#58705f);--silk:#f0eee2;--gold:#c8aa65;--bluebox:#377ea5;--blue-side:#265b7e;--blue-top:#5594b5;--battery:#2589be;--battery-side:#176a9a;--battery-top:#59add1;--steer:light-dark(#128c8f,#76d3c6);--throttle:light-dark(#bb852b,#e2b365);--reverse:light-dark(#547aaa,#9dc1ec);--hall:light-dark(#9468a1,#d3a1de);--power:light-dark(#ca6354,#f5947e);--ground:light-dark(#4c5a61,#98a99d);--usb:light-dark(#688175,#a9c4b1);font:14px/1.55 system-ui,-apple-system,"PingFang SC",sans-serif;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:14px;overflow:clip}
+#rover-wiring-atlas{max-width:1840px;height:calc(100svh - 24px);margin:auto;display:flex;flex-direction:column;overflow:clip;border-radius:12px;font-size:16px}
+.head{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--rule);flex-shrink:0}
+h1{font-size:20px;line-height:1.4;font-weight:600;white-space:nowrap}
+.topics{display:flex;flex-wrap:wrap;gap:4px}
+.topics button{font-size:16px;padding:6px 11px;background:transparent;border-color:transparent;white-space:nowrap}
+.topics button[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.topic-intro{padding:10px 20px;border-bottom:1px solid var(--rule);flex-shrink:0}
+h2{font-size:21px;line-height:1.4;font-weight:600}
+.learning-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(440px,1fr);min-height:0;flex:1;align-items:stretch}
+.visual-panel{min-width:0;min-height:0;border-right:1px solid var(--rule);position:relative;background:var(--paper)}
+.scene-scroll{width:100%;height:100%;min-height:0;overflow:auto}
+.scene{display:block;width:100%;height:100%;min-height:0;max-height:none}
+.scene text,.logic-svg text{font-family:system-ui,-apple-system,"PingFang SC",sans-serif}
+.scene .component{cursor:pointer;outline:none;transition:filter .18s}
+.scene .component.is-active{filter:drop-shadow(0 2px 4px color-mix(in srgb,var(--accent) 30%,transparent))}
+.scene .component:hover,.scene .component:focus-visible{filter:drop-shadow(0 0 4px var(--accent))}
+.scene .flow,.scene .wire-detail{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.scene-captions .part-caption rect{stroke:transparent;stroke-width:1.3}
+.scene-captions .part-caption:hover rect,.scene-captions .part-caption:focus-visible rect{stroke:var(--accent);fill:var(--wash)}
+.scene-captions .part-caption:has([fill="var(--accent)"]) rect{fill:var(--wash)}
+.flow-caption{pointer-events:none}
+.svg-copy{paint-order:stroke fill;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.logic-svg .svg-copy{stroke:var(--panel);stroke-width:3px}
+.guide{min-height:0;min-width:0;position:relative;display:flex;flex-direction:column;gap:12px;padding:16px 18px;background:var(--panel);overflow:auto}
+.phase-strip{display:flex;gap:5px;flex-shrink:0}
+.phase-strip button{flex:1;min-width:0;min-height:46px;font-size:16px;padding:7px 3px;background:var(--paper);line-height:1.35}
+.phase-strip button[aria-pressed=true]{box-shadow:inset 0 -2px var(--accent)}
+.control-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.demo-controls,.direction{display:flex;gap:6px}
+.control-bar button{font-size:16px;padding:4px 9px}
+.demo-controls .primary{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.step-explanation{border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:7px;padding:12px 14px;background:var(--paper);flex-shrink:0}
+.step-heading{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.step-explanation h3{font-size:18px;line-height:1.5;font-weight:600}
+.step-explanation p{font-size:16px;line-height:1.65;margin-top:6px;color:var(--ink)}
+.step-heading button{font-size:18px;line-height:1;padding:4px 7px;flex-shrink:0;background:transparent}
+.logic-section{flex:1;min-height:190px;display:flex;align-items:center;justify-content:center}
+.logic-svg{display:block;width:100%;height:100%;max-height:370px;min-height:190px;overflow:visible}
+.logic-svg [data-step]{cursor:pointer}
+.logic-svg .logic-box{fill:var(--paper);stroke:var(--rule);stroke-width:1.4}
+.logic-svg .selected .logic-box{fill:var(--wash);stroke:var(--accent);stroke-width:2}
+.logic-svg .logic-text{fill:var(--ink);font-size:22px;font-weight:500}
+.logic-svg .logic-arrow{fill:none;stroke:var(--rule);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.logic-svg .logic-arrow.active{stroke:var(--accent);stroke-width:3}
+.technical{flex-shrink:0;border-top:1px solid var(--rule);padding-top:9px}
+.technical summary{cursor:pointer;font-size:16px;font-weight:550;list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:30px}
+.technical summary::-webkit-details-marker{display:none}
+.technical-icon{font-size:22px;color:var(--accent)}
+.technical[open]{position:absolute;inset:0;padding:16px 18px;background:var(--panel);z-index:3;border:0}
+.technical[open] summary{height:40px;border-bottom:1px solid var(--rule)}
+.technical-body{height:calc(100% - 40px);overflow:auto;padding-top:12px;overscroll-behavior:contain}
+.wire-groups{display:grid;gap:18px}
+.wire-group-label{font-size:16px;font-weight:600;margin-bottom:6px}
+.wire-item{font-size:16px;display:block;width:100%;text-align:left;padding:9px 6px;border:0;border-bottom:1px solid var(--rule);border-radius:0;background:transparent}
+.wire-item[aria-pressed=true]{background:var(--wash)}
+.wire-description{font-size:16px;padding:10px 12px;background:var(--wash);border-radius:6px;margin-bottom:12px}
+.connector-note{font-size:16px;border-top:1px solid var(--rule);margin-top:16px;padding-top:12px}
+.scene .step-motion .flow-active{stroke-dasharray:9 7;animation:flow-travel .65s ease-out 1}
+.scene .step-motion .component.is-active{animation:component-emphasis .5s ease-out 1}
+.step-content.step-motion{animation:step-enter .24s ease-out 1}
+@keyframes flow-travel{to{stroke-dashoffset:-32}}
+@keyframes component-emphasis{0%,100%{opacity:1}45%{opacity:.72}}
+@keyframes step-enter{from{opacity:.6;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:1101px) and (max-height:760px){.head{padding:8px 16px}.topic-intro{padding:8px 16px}.guide{padding:12px 14px;gap:8px}.phase-strip button{min-height:40px}.step-explanation{padding:10px 12px}.logic-section,.logic-svg{min-height:160px}}
+@media(max-width:1250px){.head{flex-direction:column;align-items:flex-start;gap:7px}.topics{width:100%;justify-content:space-between}.topics button{padding:5px 8px}.learning-layout{grid-template-columns:minmax(0,1.2fr) minmax(420px,1fr)}}
+@media(max-width:900px){body{padding:8px}#rover-wiring-atlas{height:auto;min-height:calc(100svh - 16px)}.head{padding:12px}.topics{justify-content:flex-start;gap:4px}.topic-intro{padding:12px}.learning-layout{display:flex;flex-direction:column}.visual-panel{border-right:0;border-bottom:1px solid var(--rule);height:55svh;min-height:360px}.guide{overflow:visible;padding:14px}.logic-section{min-height:240px}.logic-svg{height:260px}.technical[open]{height:100%;min-height:450px}.phase-strip button{font-size:16px}.scene{min-width:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
