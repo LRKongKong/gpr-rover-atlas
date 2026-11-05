@@ -11,7 +11,7 @@ const topics={
  throttle:{nav:'驱动与油门',index:'02',title:'驱动：同一份油门，分别驱动两个后轮',description:'Arduino 输出 PWM，RC 电路把它平滑为模拟油门，公共节点一分二送到左右无刷控制器。',summary:'油门是控制信号。两个控制器取用电池动力，分别带动本侧后轮。',parts:['uno','r1','r2','cap','junction','left','right','lwheel','rwheel','battery'],note:'当前使用共同油门，油门电平不等于实际速度，两轮速度也不会因此自动完全相同。松油门后车辆仍会自然滑行。',steps:[step('输出 PWM','Arduino 从 D9 输出油门 PWM','PWM 是快速高低切换的控制信号。它先进入 RC 电路，再送给控制器的模拟油门输入。',['uno'],['pwm'],['d9']),step('平滑信号','1kΩ 与电容把脉冲平滑下来','1kΩ 串在 D9 后面；10µF 电容正极接电阻后的公共节点、负极接地。10kΩ 下拉也是这个节点到地的一条独立支路。',['r1','r2','cap','junction'],['filter'],['rc-node','rc-pull','rc-cap']),step('一分为二','同一个油门节点送到左右 THR','左右控制器接收同一份模拟油门。下拉与电容都从这个公共点分支，不串在两个控制器之间。',['junction','left','right'],['throttle'],['thr-left','thr-right']),step('驱动后轮','每个控制器只驱动本侧电机','控制器将电池直流动力变为驱动轮毂电机的三相输出。左控制器配左后轮，右控制器配右后轮。',['left','right','lwheel','rwheel'],['phase'],['phase-left1','phase-right1']),step('撤掉油门','停止请求先撤 PWM，车辆随后减速','PWM 撤掉后，RC 节点还需要放电，轮子仍可能滑行。当前撤油门不代表主动刹车，也不代表车轮已立刻停下。',['uno','cap','lwheel','rwheel'],['release'],['rc-cap-gnd'])]},
  reverse:{nav:'前进与后退',index:'03',title:'换向：先确认停轮，再切方向',description:'Arduino 协调油门、双轮霍尔与方向继电器，按顺序把“前进”切换为“后退”。',summary:'继电器选择方向，控制器驱动车轮。改变方向之前，程序先撤油门并等待双轮停稳条件。',parts:['uno','relay','hall','left','right','lwheel','rwheel'],note:'D7 LOW 时继电器释放、选择前进；HIGH 时吸合、选择后退。霍尔 300ms 无跳变是当前程序的停稳判据，受信号分辨率限制。',steps:[step('请求换向','Arduino 收到新的行驶方向','当请求的方向与当前方向不同时，程序先进入换向等待，不会立即一边给油一边切换触点。',['uno'],['request']),step('撤掉油门','先撤 PWM，让 RC 油门节点放电','当前换向逻辑保留至少 80ms 的 RC 放电时间。此时不主动推动轮子，轮子可能仍在滑行。',['uno','left','right'],['release']),step('等待停稳','用双轮霍尔判断是否满足切换条件','两轮霍尔输入都要合法，且连续 300ms 无跳变。等待过程中松手或停止，会取消换向请求。',['hall','uno','lwheel','rwheel'],['hall'],['hall-out-LHU','hall-out-RHU']),step('切换触点','D7 控制继电器，同时切换两个倒车输入对','NO 和 COM 各分两路，接到左右控制器各自的倒车输入对。模块 DC+ / DC− 是辅助供电，和触点 NO / COM 是两套用途。',['uno','relay','left','right'],['relay'],['d7','no-left','com-left','no-right','com-right']),step('重新给油','方向稳定后，再逐步升高油门','切换后等待 50ms 稳定，再逐步给油；霍尔继续检查两轮实际是否向目标方向起步。',['uno','left','right','lwheel','rwheel'],['drive'])]},
  hall:{nav:'霍尔反馈',index:'04',title:'霍尔：让 Arduino 知道轮子有没有在转',description:'每个后轮内三路霍尔，经接线板外部上拉后送到 Arduino，用于读取轮子运动并参与控制判断。',summary:'电机相线负责驱动，霍尔线负责反馈。每轮三路信号，左右共六路。',parts:['lwheel','rwheel','hall','uno','source'],note:'霍尔反馈已经参与换向和起步保护；当前共同油门并不构成左右轮独立的闭环调速。霍尔保留原有 5V 供电。',steps:[step('车轮转动','轮内霍尔随转动产生状态变化','HU / HV / HW 三路组合随着轮毂转动而变化。两轮分别采集，不把左右信号混为同一路。',['lwheel','rwheel'],['wheel']),step('接线与上拉','接线板提供供电分配与六路外部上拉','3～8 排各放一颗 d—g 跨沟电阻。H 孔接车轮霍尔，I 孔接 Arduino，同排右半边互通；左半边由跳线接到同一 5V。',['hall','source'],['hall-in'],['hall-source','hall-in-LHU','hall-in-RHU']),step('六路输入','左右三路分别进入对应引脚','左 HU / HV / HW → A1 / A2 / A3；右 HU / HV / HW → D10 / D11 / D12。A0 留给转向 AS5600。',['hall','uno'],['hall-out'],['hall-out-LHU','hall-out-LHV','hall-out-LHW','hall-out-RHU','hall-out-RHV','hall-out-RHW']),step('用于判断','Arduino 由变化判断转动、方向和停稳','程序统计合法状态变化，检查起步方向，等待换向停轮，并在运动时缺少有效霍尔变化的情况下停止输出。',['uno','hall'],['judge'])]},
- power:{nav:'供电与共地',index:'05',title:'供电：动力负责出力，控制负责发指令',description:'36V 电池驱动车轮并经 DC-DC 供转向；充电宝独立供树莓派和 Arduino。信号共地提供共同的电压参考。',summary:'先分清能量从哪里来，再看控制信号去哪里。电机的大电流回流不经过 Arduino。',parts:['battery','switch','left','right','dc','l298','bank','pi','uno','sensor','hall','ground','ren'],note:'右控制器附近的 36V 输入同一点分支到 DC-DC；继电器辅助供电是另一条用途不同的支路。分线接头的归组要按实际连接确认。',steps:[step('动力主干','电池正极经总开关分给两个控制器','左右轮控制器的动力输入来自同一电池。负极沿原有功率线回到电池，不让电机电流流过 Uno 地线口。',['battery','switch','left','right'],['battery'],['battery-sw','battery-left','battery-right']),step('转向电源','同点分支经 DC-DC，提供标称 12V','DC-DC 输入在右控制器附近与电池输入同点分线；OUT+ / OUT− 接 L298N 的 12V / GND。',['right','dc','l298'],['steer-power'],['dc-in-p','dc-in-n','dc-out-p','dc-out-n']),step('控制电源','充电宝供树莓派，树莓派经 USB 供 Uno','这条控制供电独立于电机动力。树莓派与 Uno 之间同一根 USB 还承担串口指令与反馈。',['bank','pi','uno'],['logic-power'],['bank','usb']),step('传感供电','小信号传感器按各自电源分配','AS5600 红线 VCC 使用 Uno 3.3V；霍尔保留原有 5V，供小板、两轮霍尔和六路上拉使用，不新增并联电源。',['uno','hall','sensor'],['sensor-power'],['sensor-vcc','hall-source']),step('共同参考','共地让各控制信号有同一参考','多个器件可以通过一分三接头汇合后接一个 GND 口。图里区分“电气上共地”与“具体哪一组分线接头”，不把共地画成新增板卡。',['ground','uno','l298','dc','ren'],['ground'],['uno-gnd','l298-gnd','dc-out-n'])]}
+ power:{nav:'供电与共地',index:'05',title:'供电：动力负责出力，控制负责发指令',description:'36V 电池驱动车轮并经 DC-DC 供转向；充电宝独立供树莓派和 Arduino。信号共地提供共同的电压参考。',summary:'先分清能量从哪里来，再看控制信号去哪里。电机的大电流回流不经过 Arduino。',parts:['battery','switch','left','right','dc','l298','bank','pi','uno','sensor','hall','ground','ren'],note:'右控制器附近的 36V 输入同一点分支到 DC-DC；继电器辅助供电是另一条用途不同的支路。分线接头的归组要按实际连接确认。',steps:[step('动力主干','同一 36V 电源，并联供给三条支路','左控制器、右控制器和 DC-DC 并联取用电池电源。实车把 DC-DC 的分线点放在右控制器的电源输入接头处。负极沿动力线回电池。',['battery','switch','left','right','dc'],['battery'],['battery-sw','battery-left','battery-right']),step('转向电源','DC-DC 与右控制器从同一接头并联取电','实车在右控制器的电源输入接头处分线，两条支路各自取电，电流不经过右控制器内部。DC-DC 再降压到标称 12V，供给 L298N。',['battery','switch','right','dc','l298'],['steer-power'],['dc-in-p','dc-in-n','dc-out-p','dc-out-n']),step('控制电源','充电宝供树莓派，树莓派经 USB 供 Uno','这条控制供电独立于电机动力。树莓派与 Uno 之间同一根 USB 还承担串口指令与反馈。',['bank','pi','uno'],['logic-power'],['bank','usb']),step('传感供电','小信号传感器按各自电源分配','AS5600 红线 VCC 使用 Uno 3.3V；霍尔保留原有 5V，供小板、两轮霍尔和六路上拉使用，不新增并联电源。',['uno','hall','sensor'],['sensor-power'],['sensor-vcc','hall-source']),step('共同参考','共地让各控制信号有同一参考','多个器件可以通过一分三接头汇合后接一个 GND 口。图里区分“电气上共地”与“具体哪一组分线接头”，不把共地画成新增板卡。',['ground','uno','l298','dc','ren'],['ground'],['uno-gnd','l298-gnd','dc-out-n'])]}
 };
 const state={topic:'steer',step:0,component:'',wire:'',motion:false,direction:-1};
 let sceneLabels=[],labelBounds=[];
@@ -110,9 +110,18 @@ function hallScene(){
 function powerScene(){
  if(state.step===3)return sensorPowerScene();if(state.step===4)return groundScene();
  let art=part('battery','battery',54,123,.84)+part('switch','switch',266,148,.95)+part('left','controller',453,103,.73)+part('right','controller',453,304,.73)+part('dc','dc',717,319,.9)+part('l298','l298',715,115,.84)+part('bank','bank',72,515,.8)+part('pi','pi',330,492,.68)+part('uno','uno',647,485,.65);
- art+=labelPart('battery','36V 动力电池',128,266)+labelPart('switch','总开关',287,231)+labelPart('left','左控制器',528,254)+labelPart('right','右控制器',528,452)+labelPart('dc','DC-DC',778,453)+labelPart('l298','L298N',778,255)+labelPart('bank','充电宝',132,625)+labelPart('pi','树莓派',400,625)+labelPart('uno','Arduino',744,650);
- art+=arrow('battery',[[217,170],[249,170]],'',0,0,'power')+arrow('battery',[[322,170],[423,170]],'动力',373,149,'power')+arrow('battery',[[377,170],[377,371],[424,371]],'',0,0,'power');
- art+=arrow('steer-power',[[625,366],[687,366]],'同点分支',655,414,'power')+arrow('steer-power',[[875,366],[887,366],[887,182],[858,182]],'12V',920,270,'power');
+ art+=labelPart('battery','36V 动力电池',128,266)+labelPart('switch','总开关',287,231)+labelPart('left','左控制器',528,254)+labelPart('right','右控制器',528,414)+labelPart('dc','DC-DC',778,453)+labelPart('l298','L298N',778,255)+labelPart('bank','充电宝',132,625)+labelPart('pi','树莓派',400,625)+labelPart('uno','Arduino',744,650);
+ // The feeder and both input branches meet outside the right controller; no path exits its body toward DC-DC.
+ art+=arrow('battery',[[217,170],[249,170]],'',0,0,'power');
+ art+='<g data-power-bus="36V">'+circuitLead('power-feed',[[322,170],[377,170],[377,371]],'power','battery')+'</g>';
+ art+='<g data-parallel-load="left">'+arrow('battery',[[377,170],[424,170]],'',0,0,'power')+'</g>';
+ art+='<g data-parallel-load="right">'+arrow('battery',[[377,371],[424,371]],'',0,0,'power')+'</g>';
+ art+='<g data-parallel-load="dc">'+arrow('steer-power',[[377,371],[377,448],[675,448],[675,366],[687,366]],'',0,0,'power')+'</g>';
+ art+='<circle cx="377" cy="170" r="4" fill="'+C('power')+'"/><circle data-power-junction="right-input" cx="377" cy="371" r="8" fill="'+C('power')+'" stroke="'+C('power')+'" stroke-width="2"/>';
+ art+='<path d="M 330 371 H 364" stroke="'+C('muted')+'" stroke-width="1.3" fill="none"/>';
+ sceneCaption('36V 并联分线点',225,336,22,'power','parallel-point');
+ sceneCaption('右控制器电源接头处',215,374,20,'ink','parallel-location');
+ art+=arrow('steer-power',[[875,366],[887,366],[887,182],[858,182]],'12V',920,270,'power');
  art+=arrow('logic-power',[[208,545],[306,545]],'USB',256,526,'usb')+arrow('logic-power',[[497,545],[620,545]],'USB / 数据',558,526,'usb');
  art+='<path d="M 45 470 H 917" stroke="'+C('rule')+'" stroke-dasharray="5 6"/>';
  return art;
@@ -178,8 +187,22 @@ function workflow(){
   out+=logicArrow('control',[[228,57],[289,57]],'控制',258,43)+logicArrow('motor',[[389,96],[389,194]],'电机动力',435,149,'power')+logicArrow('mechanical',[[291,240],[233,240]],'检测',262,225)+logicArrow('feedback',[[133,198],[133,104]],'OUT → A0',80,153,'hall');
   out+=text(254,148,state.step===4?'到位停驱':'继续调节',20,'accent');
  }else if(state.topic==='power'){
-  out+=logicBox('battery',10,14,135,65,'36V 电池','正极经过总开关',0)+logicBox('right',207,14,136,65,'双轮控制器','动力驱动后轮',0)+logicBox('dc',207,117,136,65,'DC-DC','标称 12V 输出',1)+logicBox('l298',388,117,104,65,'L298N','转向动力',1)+logicBox('bank',10,225,135,65,'充电宝','独立控制电源',2)+logicBox('pi',207,225,136,65,'树莓派','供电并发送指令',2)+logicBox('uno',388,225,104,65,'Arduino','控制与读取',2);
-  out+=logicArrow('battery',[[151,47],[195,47]])+logicArrow('steer-power',[[175,47],[175,150],[195,150]])+logicArrow('steer-power',[[349,150],[377,150]])+logicArrow('logic-power',[[151,257],[195,257]],'USB',174,242)+logicArrow('logic-power',[[349,257],[377,257]]);
+  if(state.step===2){
+   out+=logicBox('bank',10,112,135,66,'充电宝','',2)+logicBox('pi',200,112,135,66,'树莓派','',2)+logicBox('uno',390,112,105,66,'Arduino','',2);
+   out+=logicArrow('logic-power',[[151,145],[190,145]],'USB',171,128,'usb')+logicArrow('logic-power',[[341,145],[380,145]],'USB',360,128,'usb');
+  }else{
+   out+=logicBox('battery',10,92,130,64,'36V 电池','',0)+logicBox('left',276,13,205,66,'左控制器','',0)+logicBox('right',276,108,205,66,'右控制器','',0)+logicBox('dc',276,203,105,66,'DC-DC','',1)+logicBox('l298',411,203,84,66,'L298N','',1);
+   out+='<path data-power-bus="36V" d="M 200 46 V 236" fill="none" stroke="'+C('power')+'" stroke-width="2.4"/>';
+   out+=logicArrow('battery',[[149,124],[200,124]],'',0,0,'power');
+   out+='<g data-parallel-load="left">'+logicArrow('battery',[[200,46],[266,46]],'',0,0,'power')+'</g>';
+   out+='<g data-parallel-load="right">'+logicArrow('battery',[[200,141],[266,141]],'',0,0,'power')+'</g>';
+   out+='<g data-parallel-load="dc">'+logicArrow('steer-power',[[200,236],[266,236]],'',0,0,'power')+'</g>';
+   for(const y of [46,124,141,236])out+='<circle cx="200" cy="'+y+'" r="4" fill="'+C('power')+'"/>';
+   out+=logicArrow('steer-power',[[387,236],[401,236]],'',0,0,'power')+text(450,194,'12V',20,'power');
+   out+=text(113,45,'并联供电',22,'power')+text(75,183,'总开关后',20,'ink');
+   out+=text(250,293,'实车分线：右控制器电源接头处',20,'ink');
+  }
+
  }else{
   const config={
    overview:[['pi','网页与树莓派','操作变成串口指令',0],['uno','Arduino','协调控制与读取',0],['left','执行器','转向与双后轮驱动',2],['sensor','反馈','位置与轮子运动',3]],
@@ -207,9 +230,9 @@ function activeWires(){
 }
 function resolvedEndpoint(ep){return ep;}
 function leadEndpoint(w,key){const ep=resolvedEndpoint(w[key]);return ep[0]==='hall'&&/^hall-(in|out)-/.test(w.id)?['hall',ep[1]+(w.id.startsWith('hall-in-')?'-in':'-out')]:ep;}
-function endpointText(ep){const actual=resolvedEndpoint(ep);return shortPart(actual[0])+' · '+actual[1];}
+function endpointText(ep){const actual=resolvedEndpoint(ep);return (actual[0]==='right'&&['P+','P-'].includes(actual[1])?'右侧电源接头':shortPart(actual[0]))+' · '+actual[1];}
 function wireTitle(w){return w.id==='hall-source'?'原霍尔 5V → a1':w.label;}
-function wireCopy(w){if(w.id==='hall-source')return 'a1 接原有霍尔 5V，b1 / c1 分给左右轮；保留同一电源，不额外并入另一处 5V。';const ch=evidence.hallBoard.channels.find(c=>w.id.endsWith('-'+c.channel));return ch&&/^hall-(in|out)-/.test(w.id)?'第 '+ch.row+' 排：电阻 d'+ch.row+'—g'+ch.row+'；h'+ch.row+' 接'+ch.wheel+' '+ch.signal+'，i'+ch.row+' 接 '+ch.pin+'。同排 f～j 内部互通，f 孔留空。':w.copy;}
+function wireCopy(w){if(['dc-in-p','dc-in-n'].includes(w.id))return '实车在右控制器电源输入接头处并联分线，右控制器与 DC-DC 各自连接同一电池电源；这根线不经过右控制器内部。'+w.copy;if(w.id==='hall-source')return 'a1 接原有霍尔 5V，b1 / c1 分给左右轮；保留同一电源，不额外并入另一处 5V。';const ch=evidence.hallBoard.channels.find(c=>w.id.endsWith('-'+c.channel));return ch&&/^hall-(in|out)-/.test(w.id)?'第 '+ch.row+' 排：电阻 d'+ch.row+'—g'+ch.row+'；h'+ch.row+' 接'+ch.wheel+' '+ch.signal+'，i'+ch.row+' 接 '+ch.pin+'。同排 f～j 内部互通，f 孔留空。':w.copy;}
 function externalEndpoint(ep,index){
  const x=index?835:135,y=604;
  if(ep[0]==='ground')return {point:[370,590],art:'<g>'+text(370,619,'公共信号参考',13,'ground')+'<path d="M 370 590 v 12 m -12 0 h 24 m -19 6 h 14 m -10 6 h 6" stroke="'+C('ground')+'" stroke-width="1.5" fill="none"/></g>'};
@@ -258,7 +281,7 @@ const partRoles={
  throttle:{uno:'从 D9 产生油门 PWM，停止请求时撤掉输出。',junction:'1kΩ 之后同一个节点，同时分给两侧 THR、下拉和滤波电容。',r1:'串联在 D9 后，和电容一起承担平滑 PWM 的作用。',r2:'从油门公共点经 10kΩ 接地，提供下拉。',cap:'正极接公共油门节点，负极接地；滤波和放电都需要时间。'},
  reverse:{uno:'统筹撤油门、读霍尔等停轮、切 D7，再逐步给油的顺序。',relay:'D7 控制模块 IN，NO / COM 各分两路去闭合两侧倒车输入对。',hall:'接收两轮的六路霍尔信号，经 d—g 上拉、H / I 同排连接后，送给 Arduino 判断停轮。'},
  hall:{uno:'读取六路霍尔的合法状态变化，统计运动并参与换向和起步判断。',hall:'3～8 排的电阻跨接 d—g。H 接车轮霍尔，I 接 Arduino；左半边通过六根跳线连到原有 5V。',source:'a1 接原有霍尔 5V，b1 / c1 接左右轮红线，不另并入第二路 5V。'},
- power:{uno:'由 Pi 的 USB 供电，并分配传感器电源、提供控制信号参考。',ground:'表示电气共地，不是一块新增的板卡。真实分线使用一分三接头，接头归组按实物确认。'}
+ power:{right:'与左控制器、DC-DC 并联取用 36V 电池电源。实车在它的电源输入接头处另分一条支路到 DC-DC，电流不经过控制器内部。',dc:'与左右控制器并联取用同一电池电源，再输出标称 12V 给 L298N。分线接头位于右控制器电源输入端。',uno:'由 Pi 的 USB 供电，并分配传感器电源、提供控制信号参考。',ground:'表示电气共地，不是一块新增的板卡。真实分线使用一分三接头，接头归组按实物确认。'}
 };
 function connectorCopy(){return '图中共地表示电气关系；实物一分三接头的归组待确认。';}
 function renderTechnical(){
